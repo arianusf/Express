@@ -1,7 +1,9 @@
 const express = require('express');
 const { JsonDB, Config } = require('node-json-db');
+var cors = require('cors');
 const app = express();
 app.use(express.json());
+app.use(cors());
 const port = 5000;
 
 var db = new JsonDB(new Config('data', true, false, '/'));
@@ -32,6 +34,18 @@ app.post('/shopping', async (req, res) => {
         }
         await db.push('/shopping', data);
         res.send({ values: data });
+    } else {
+        res.send({ error: "can't insert item" });
+    }
+});
+
+app.post('/delete-shopping', async (req, res) => {
+    const item = req?.body?.name;
+    if (item) {
+        let data = await db.getData('/shopping');
+        let newData = data.filter(x=>x!== item);
+        await db.push('/shopping', newData);
+        res.send({ values: newData });
     } else {
         res.send({ error: "can't insert item" });
     }
