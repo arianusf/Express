@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "node-json-db": "^2.3.0",
+    "nodemon": "^3.1.0"
   }
 }
