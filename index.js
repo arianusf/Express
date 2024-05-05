@@ -16,7 +16,9 @@ app.get('/json', (req, res) => {
     res.sendFile('data.json', { root: __dirname });
 });
 
-app.get('/shopping', async (req, res) => {
+//shopping
+
+app.get('/shopping/', async (req, res) => {
     try {
         var data = await db.getData('/shopping');
         res.send({ values: data });
@@ -25,17 +27,32 @@ app.get('/shopping', async (req, res) => {
     }
 });
 
-app.post('/shopping', async (req, res) => {
-    const item = req?.body?.name;
-    if (item) {
-        var data = await db.getData('/shopping');
-        if (!data.find((x) => x === item)) {
-            data.push(item);
+app.get('/shopping/:cat', async (req, res) => {
+    if (req?.params?.cat) {
+        const cat = req.params.cat.toLowerCase().replaceAll(' ', '');
+        try {
+            var data = await db.getData('/shopping');
+            res.send({ values: data.filter((x) => x.owner.toLowerCase() === cat) });
+        } catch (e) {
+            res.send({ error: e });
         }
-        await db.push('/shopping', data);
-        res.send({ values: data });
-    } else {
-        res.send({ error: "can't insert item" });
+    }
+});
+
+app.post('/shopping/:cat', async (req, res) => {
+    const item = req?.body?.name;
+    if (req?.params?.cat) {
+        const cat = req.params.cat.toLowerCase().replaceAll(' ', '');
+        if (item) {
+            var data = await db.getData('/shopping');
+            if (!data.find((x) => x.name === item)) {
+                data.push({ owner: cat, name: item, date: new Date() });
+            }
+            await db.push('/shopping', data);
+            res.send({ values: data });
+        } else {
+            res.send({ error: "can't insert item" });
+        }
     }
 });
 
@@ -43,7 +60,7 @@ app.post('/delete-shopping', async (req, res) => {
     const item = req?.body?.name;
     if (item) {
         let data = await db.getData('/shopping');
-        let newData = data.filter(x=>x!== item);
+        let newData = data.filter((x) => x.name !== item);
         await db.push('/shopping', newData);
         res.send({ values: newData });
     } else {
@@ -51,29 +68,66 @@ app.post('/delete-shopping', async (req, res) => {
     }
 });
 
-app.get('/todo', async (req, res) => {
-    try {
-        var data = await db.getData('/todo');
-        res.send({ values: data });
-    } catch (e) {
-        res.send({ error: e });
-    }
-});
+//////todo
 
-app.post('/todo', async (req, res) => {
-    const item = req?.body?.name;
-    if (item) {
-        var data = await db.getData('/todo');
-        if (!data.find((x) => x === item)) {
-            data.push(item);
+app.get('/todo/', async (req, res) => {
+    if (req?.params?.cat) {
+        const cat = req.params.cat.toLowerCase().replaceAll(' ', '');
+        try {
+            var data = await db.getData('/todo');
+            res.send({ values: data });
+        } catch (e) {
+            res.send({ error: e.filter((x) => x.owner.toLowerCase() === cat) });
         }
-        await db.push('/todo', data);
-        res.send({ values: data });
-    } else {
-        res.send({ error: "can't insert item" });
     }
 });
 
+app.get('/todo/:cat', async (req, res) => {
+    if (req?.params?.cat) {
+        const cat = req.params.cat.toLowerCase().replaceAll(' ', '');
+        try {
+            var data = await db.getData('/todo');
+            res.send({ values: data.filter((x) => x.owner.toLowerCase() === cat) });
+        } catch (e) {
+            res.send({ error: e });
+        }
+    }
+});
+
+app.post('/todo/:cat', async (req, res) => {
+    const item = req?.body?.name;
+    const maxDate = req?.body?.maxDate || null;
+    if (req?.params?.cat) {
+        const cat = req.params.cat.toLowerCase().replaceAll(' ', '');
+        if (item) {
+            var data = await db.getData('/todo');
+            if (!data.find((x) => x.name === item)) {
+                data.push({ owner: cat, name: item, date: new Date(), maxDate: maxDate });
+            }
+            await db.push('/todo', data);
+            res.send({ values: data.filter((x) => x.owner.toLowerCase() === cat) });
+        } else {
+            res.send({ error: "can't insert item" });
+        }
+    }
+});
+
+app.post('/delete-todo/:cat', async (req, res) => {
+    if (req?.params?.cat) {
+        const cat = req.params.cat.toLowerCase().replaceAll(' ', '');
+        const item = req?.body?.name;
+        if (item) {
+            let data = await db.getData('/todo');
+            let newData = data.filter((x) => x.name !== item);
+            await db.push('/todo', newData);
+            res.send({ values: newData.filter((x) => x.owner.toLowerCase() === cat) });
+        } else {
+            res.send({ error: "can't insert item" });
+        }
+    }
+});
+
+/////
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
 });

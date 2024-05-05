@@ -1,1 +1,1 @@
-{"shopping":["test"]}
+{"shopping":[{"owner":"arian","name":"mast"},{"owner":"arian","name":"doogh"},{"owner":"yasaman","name":"1"},{"owner":"yasaman","name":"2","date":5}],"todo":[{"owner":"arian","name":"bime"},{"owner":"yasaman","name":"22","date":"2024-05-05T19:29:06.588Z","maxDate":null},{"owner":"yasaman","name":"job","date":"2024-05-05T19:29:41.272Z","maxDate":"sag"}]}
